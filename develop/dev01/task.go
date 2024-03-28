@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 /*
 === Базовая задача ===
 
@@ -14,4 +16,5 @@ package main
 
 func main() {
 
+	fmt.Println("Hi")
 }
