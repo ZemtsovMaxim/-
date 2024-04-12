@@ -32,40 +32,46 @@ import (
 Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
-func readingFile(file string) []string {
-	var result []string
+func readFile(fileName string) []string {
+	var result []string //Придумать как оптимизировать путем инициализации длины и cap. Чтобы не перевыделялась память каждый раз при append-e.
 
-	inFile, _ := os.Open(file)
-	defer inFile.Close()
+	file, err := os.Open(fileName)
+	if err != nil {
+		panic("Cant open file")
+	}
+	defer file.Close()
 
-	fileScanner := bufio.NewScanner(inFile)
+	scanner := bufio.NewScanner(file)
 
-	for fileScanner.Scan() {
-		str := fileScanner.Text()
+	for scanner.Scan() {
+		str := scanner.Text()
 		result = append(result, str)
 	}
 	return result
 }
 
-func recordFile(file string, array []string) {
-	outFile, _ := os.Create(file)
-	defer outFile.Close()
-
-	for i := 0; i < len(array)-1; i++ {
-		outFile.WriteString(array[i] + "\n")
+func recordFile(fileName string, array []string) {
+	file, err := os.Create(fileName)
+	if err != nil {
+		panic("Cant create file")
 	}
-	outFile.WriteString(array[len(array)-1])
+	defer file.Close()
+
+	for i := 0; i < len(array); i++ {
+		file.WriteString(array[i] + "\n")
+	}
 }
 
-func UniqueString(noneUniqueString []string) []string {
-	for i, str := range noneUniqueString {
-		for j := i + 1; j < len(noneUniqueString); j++ {
-			if str == noneUniqueString[j] {
-				noneUniqueString = append(noneUniqueString[:i], noneUniqueString[j:]...)
-			}
+func MakeStringUniq(rawString []string) []string {
+	allKeys := make(map[string]bool)
+	uniqString := make([]string, len(rawString))
+	for _, item := range rawString {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			uniqString = append(uniqString, item)
 		}
 	}
-	return noneUniqueString
+	return uniqString
 }
 
 func SortNum(unsorted []string) []string {
@@ -118,11 +124,11 @@ func main() {
 	r := flag.Bool("r", false, "revers sort")
 	u := flag.Bool("d", false, "do not dublicate lines")
 
-	dataFile := readingFile("test.txt")
+	dataFile := readFile("data.txt")
 
 	switch {
 	case *u:
-		dataFile = UniqueString(dataFile)
+		dataFile = MakeStringUniq(dataFile)
 	case *k != 0:
 		dataFile = SortByColumn(dataFile, *k)
 	case *r == true:
