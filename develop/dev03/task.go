@@ -62,9 +62,9 @@ func recordFile(fileName string, array []string) {
 	}
 }
 
-func MakeStringUniq(rawString []string) []string {
+func Deduplicate(rawString []string) []string {
 	allKeys := make(map[string]bool)
-	uniqString := make([]string, len(rawString))
+	var uniqString []string
 	for _, item := range rawString {
 		if _, value := allKeys[item]; !value {
 			allKeys[item] = true
@@ -74,46 +74,37 @@ func MakeStringUniq(rawString []string) []string {
 	return uniqString
 }
 
-func SortNum(unsorted []string) []string {
-
-	for i := range unsorted {
-		var count1 int
-		l := strings.Split(unsorted[i], " ")
-
-		for j := range l {
-			_, err := strconv.Atoi(l[j])
-			if err == nil {
-				count1++
-			}
-		}
-
-		if count1 == len(l) {
-			var result []int
-
-			for j := range l {
-				k, _ := strconv.Atoi(l[j])
-				result = append(result, k)
-			}
-			sort.Ints(result)
-
-			for m := range result {
-				l = append(l[:m], strconv.Itoa(result[m]))
-			}
-		}
-		unsorted[i] = strings.Join(l, " ")
-	}
+func Sort(unsorted []string) []string {
+	sort.Strings(unsorted)
 	return unsorted
 }
 
 func ReversSort(unsorted []string) []string {
-	sort.Sort(sort.Reverse(sort.StringSlice(unsorted)))
-	return unsorted
+	sorted := Sort(unsorted)
+	last := len(sorted) - 1
+	for i := 0; i < len(sorted)/2; i++ {
+		sorted[i], sorted[last-i] = sorted[last-i], sorted[i]
+	}
+	return sorted
 }
 
 func SortByColumn(data []string, colNum int) []string {
 	sort.Slice(data, func(i, j int) bool {
-		return data[i][colNum] < data[j][colNum]
+		fields1 := strings.Fields(data[i])
+		fields2 := strings.Fields(data[j])
+
+		if len(fields1) > colNum && len(fields2) > colNum {
+			val1, err1 := strconv.Atoi(fields1[colNum])
+			val2, err2 := strconv.Atoi(fields2[colNum])
+
+			if err1 == nil && err2 == nil {
+				return val1 < val2
+			}
+		}
+
+		return fields1[colNum] < fields2[colNum]
 	})
+
 	return data
 }
 
@@ -122,20 +113,22 @@ func main() {
 	k := flag.Int("k", 0, "enter column")
 	n := flag.Bool("n", false, "sort by num")
 	r := flag.Bool("r", false, "revers sort")
-	u := flag.Bool("d", false, "do not dublicate lines")
+	u := flag.Bool("u", false, "do not dublicate lines")
+
+	flag.Parse()
 
 	dataFile := readFile("data.txt")
 
 	switch {
 	case *u:
-		dataFile = MakeStringUniq(dataFile)
-	case *k != 0:
+		dataFile = Deduplicate(dataFile)
+	case *k != -1:
 		dataFile = SortByColumn(dataFile, *k)
-	case *r == true:
+	case *r:
 		dataFile = ReversSort(dataFile)
-	case *n == true:
-		dataFile = SortNum(dataFile)
+	case *n:
+		dataFile = Sort(dataFile)
 	}
 
-	recordFile("outText.txt", dataFile)
+	recordFile("result.txt", dataFile)
 }
