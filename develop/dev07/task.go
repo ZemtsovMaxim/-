@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
 /*
 === Or channel ===
 
@@ -33,6 +39,46 @@ start := time.Now()
 fmt.Printf(“fone after %v”, time.Since(start))
 */
 
-func main() {
+func mergeDoneChannels(doneChans ...<-chan struct{}) <-chan struct{} {
+	merged := make(chan struct{})
+	var wg sync.WaitGroup
 
+	for _, doneChan := range doneChans {
+		wg.Add(1)
+		go func(ch <-chan struct{}) {
+			defer wg.Done()
+			<-ch
+			close(merged)
+		}(doneChan)
+	}
+
+	go func() {
+		wg.Wait()
+		close(merged)
+	}()
+
+	return merged
+}
+
+func main() {
+	done1 := make(chan struct{})
+	done2 := make(chan struct{})
+	done3 := make(chan struct{})
+
+	single := mergeDoneChannels(done1, done2, done3)
+
+	// Пример использования single-канала
+	go func() {
+		for {
+			_, ok := <-single
+			if !ok {
+				fmt.Println("Single channel closed")
+				break
+			}
+		}
+	}()
+
+	// Закрытие одного из done-каналов
+	time.Sleep(5 * time.Second)
+	close(done2)
 }
