@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>События</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="date"],
+        input[type="text"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: navy;
+            color: #fff;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #001f3f;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Управление событиями</h1>
+
+    <form method="post" action="create_event">
+        <input type="date" name="date" required>
+        <input type="text" name="mes" placeholder="Какие планы?" required>
+        <input type="submit" value="Создать событие">
+    </form>
+
+    <form method="post" action="update_event">
+        <input type="text" name="id" placeholder="Введите id события" required>
+        <input type="date" name="date" required>
+        <input type="text" name="mes" placeholder="Какие планы?" required>
+        <input type="submit" value="Изменить событие">
+    </form>
+
+    <form method="post" action="delete_event">
+        <input type="text" name="id" placeholder="Введите id события" required>
+        <input type="submit" value="Удалить событие">
+    </form>
+
+    <form method="get" action="events_for_day">
+        <input type="date" name="date" required>
+        <input type="submit" value="Показать события за день">
+    </form>
+
+    <form method="get" action="events_for_week">
+        <input type="date" name="date" required>
+        <input type="submit" value="Показать события за неделю">
+    </form>
+
+    <form method="get" action="events_for_month">
+        <input type="date" name="date" required>
+        <input type="submit" value="Показать события за месяц">
+    </form>
+</div>
+
+</body>
+</html>
