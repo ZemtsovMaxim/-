@@ -3,22 +3,32 @@ package main
 import (
 	"log"
 	"net/http"
+
+	service "github.com/ZemtsovMaxim/WB-L2/develop/dev11/internal/services"
 )
 
 func main() {
-	// Здесь можно инициализировать сервисы, если это необходимо.
-	// Например, можно создать экземпляр вашего сервиса и передать его обработчикам.
+	// Создаем экземпляр сервиса событий.
+	eventService := service.NewEventService()
 
-	// Регистрируем обработчики для каждого метода API.
-	http.HandleFunc("/create_event", createEventHandler)
-	http.HandleFunc("/update_event", updateEventHandler)
+	// Создаем обработчик событий.
+	eventHandler := &handler.EventHandler{EventService: eventService}
 
-	// Добавляем middleware для логирования.
-	http.Handle("/", loggingMiddleware(http.DefaultServeMux))
+	// Создаем маршрутизатор HTTP.
+	router := http.NewServeMux()
 
-	// Указываем порт для запуска сервера.
-	port := ":8080"
-	log.Printf("Starting server on port %s\n", port)
-	// Запускаем сервер на указанном порту.
-	log.Fatal(http.ListenAndServe(port, nil))
+	// Устанавливаем обработчики маршрутов.
+	router.HandleFunc("/create_event", eventHandler.CreateEventHandler)
+	router.HandleFunc("/update_event", eventHandler.UpdateEventHandler)
+	router.HandleFunc("/delete_event", eventHandler.DeleteEventHandler)
+	router.HandleFunc("/events_for_day", eventHandler.EventsForDayHandler)
+	router.HandleFunc("/events_for_week", eventHandler.EventsForWeekHandler)
+	router.HandleFunc("/events_for_month", eventHandler.EventsForMonthHandler)
+
+	// Запускаем HTTP-сервер на порту 8080.
+	log.Println("Starting server on port 8080...")
+	err := http.ListenAndServe(":8080", router)
+	if err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }
