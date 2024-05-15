@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	service "github.com/ZemtsovMaxim/WB-L2/develop/dev11/internal/services"
+	handler "github.com/ZemtsovMaxim/WB-L2/develop/dev11/internal/transport"
 )
 
 func main() {
